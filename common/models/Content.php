@@ -2,12 +2,14 @@
 
 namespace common\models;
 
-use common\models;
 use common\models\base\BaseContent;
 use yii\web\UploadedFile;
 
 class Content extends BaseContent
 {
+    const IMAGE_THUMB = 'thumb';
+    const IMAGE_VIEW = 'view';
+    
     /**
      * @var UploadedFile
      */
@@ -24,7 +26,7 @@ class Content extends BaseContent
      * Модель
      * @return ContentImage
      */
-    public function getModelContentImage()
+    public function getImage()
     {
         static $img;
 
@@ -38,7 +40,13 @@ class Content extends BaseContent
             $img = new ContentImage();
         }
 
-        $img->
+        /**
+         * Форматы изображений
+         */
+        $img->formatImage = [
+            static::IMAGE_THUMB => ['w' => 200, 'h' => 200],
+            static::IMAGE_VIEW => ['w' => 1200, 'h' => 1000],
+        ];
 
         return $img;
     }
@@ -49,9 +57,18 @@ class Content extends BaseContent
             return true;
         }
 
-        $this->content_image_id = $this->getModelContentImage()->upload($this->imageFile);
+        if ($this->validate()) {
+            $this->content_image_id = $this->getImage()->upload($this->imageFile);
+            $result = !empty($this->content_image_id);
 
-        return !empty($this->content_image_id);
+            if ($result) {
+                $this->imageFile = null;
+            }
+
+            return $result;
+        } else {
+            return false;
+        }
     }
 
     public function load($data, $formName = null)

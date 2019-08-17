@@ -6,6 +6,12 @@ use common\models\base\BaseContentImage;
 use yii\helpers\FileHelper;
 use yii\web\UploadedFile;
 
+use yii\imagine\Image;
+use Imagine\Gd;
+use Imagine\Image\Box;
+use Imagine\Image\BoxInterface;
+
+
 class ContentImage extends BaseContentImage {
 
     /**
@@ -54,7 +60,21 @@ class ContentImage extends BaseContentImage {
      */
     public function getFilePath($prefix = ''):string
     {
-        return  static::getPathUpload() . '/' . $this->getFileName($prefix);
+        return  static::getPathUpload() . DIRECTORY_SEPARATOR . $this->getFileName($prefix);
+    }
+
+    /**
+     * Url до изображения
+     * @param $prefix
+     * @return string
+     */
+    public function getUrl($prefix):string
+    {
+        if ($this->base_name) {
+            return '/uploads/' . $this->getFileName($prefix);
+        }
+
+        return '';
     }
 
     /**
@@ -89,6 +109,26 @@ class ContentImage extends BaseContentImage {
         }
     }
 
+    /**
+     * Создать файлы нужного размера
+     * @throws \yii\base\Exception
+     */
+    protected function processImage()
+    {
+        $originalFile = $this->getFilePath();
+
+        foreach ($this->formatImage as $prefix => $option) {
+
+            $newFileName = $this->getFilePath($prefix);
+            $width = $option['w'] ?? 0;
+            $height = $option['h'] ?? 0;
+
+            Image::getImagine()->open($originalFile)
+                ->thumbnail(new Box($width, $height))
+                ->save($newFileName , ['quality' => 90]);
+        }
+    }
+
     public function upload(UploadedFile $upload)
     {
         $oldImage  = $this->getAllFiles();
@@ -100,6 +140,7 @@ class ContentImage extends BaseContentImage {
         $this->save();
 
         if ($upload->saveAs( $this->getFilePath())) {
+            $this->processImage();
             $this->deleteOldFile($oldImage);
         }
         return $this->id;

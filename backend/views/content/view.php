@@ -36,4 +36,12 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]) ?>
 
+    <?php
+
+        $img = $model->getImage()->getUrl(\common\models\Content::IMAGE_THUMB);
+        if ($img) {
+            echo Html::img($img);
+        }
+    ?>
+
 </div>

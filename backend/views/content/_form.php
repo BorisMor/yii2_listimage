@@ -19,6 +19,18 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'imageFile')->fileInput() ?>
 
     <div class="form-group">
+        <?php
+
+        $imgThumb = $model->getImage()->getUrl(\common\models\Content::IMAGE_THUMB);
+        if ($imgThumb) {
+            $imgView = $model->getImage()->getUrl(\common\models\Content::IMAGE_VIEW);
+            echo Html::a(Html::img($imgThumb), $imgView, ['target' => '_blank']) ;
+        }
+
+        ?>
+    </div>
+
+    <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>
     </div>
 
