@@ -16,6 +16,9 @@ class ContentImage extends BaseContentImage {
 
     /**
      * Формат изоражения
+     * [ 'prefix' => ['w' => 100, 'h' => 100] ]
+     * w-ширина, h - высота
+     *
      * @var array
      */
     public $formatImage = [];
@@ -47,7 +50,7 @@ class ContentImage extends BaseContentImage {
      * @param string $prefix
      * @return string
      */
-    public function getFileName($prefix = ''): string
+    protected function getFileName($prefix = ''): string
     {
         return  $this->id . '_' . $prefix . '_' . $this->base_name . '.' . $this->extension;
     }
@@ -58,7 +61,7 @@ class ContentImage extends BaseContentImage {
      * @return string
      * @throws \yii\base\Exception
      */
-    public function getFilePath($prefix = ''):string
+    protected function getFilePath($prefix = ''):string
     {
         return  static::getPathUpload() . DIRECTORY_SEPARATOR . $this->getFileName($prefix);
     }
@@ -129,6 +132,12 @@ class ContentImage extends BaseContentImage {
         }
     }
 
+    /**
+     * Загрузить файл
+     * @param UploadedFile $upload
+     * @return int
+     * @throws \yii\base\Exception
+     */
     public function upload(UploadedFile $upload)
     {
         $oldImage  = $this->getAllFiles();
@@ -137,12 +146,23 @@ class ContentImage extends BaseContentImage {
         $this->base_name = $upload->baseName;
         $this->size = $upload->size;
         $this->extension = $upload->extension;
-        $this->save();
 
-        if ($upload->saveAs( $this->getFilePath())) {
+        if ($this->save() && $upload->saveAs( $this->getFilePath())) {
             $this->processImage();
             $this->deleteOldFile($oldImage);
         }
+
         return $this->id;
+    }
+
+    public function delete()
+    {
+        foreach ($this->getAllFiles() as $prefix => $path) {
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
+
+        return parent::delete();
     }
 }
