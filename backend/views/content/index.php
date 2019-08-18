@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use \common\models\Content;
 
 /* @var $this yii\web\View */
 /* @var $searchModel backend\models\ContentSearch */
@@ -30,6 +31,15 @@ $this->params['breadcrumbs'][] = $this->title;
             'title',
             'description:ntext',
             'view',
+            [
+                'format' => 'image',
+                'format' => 'html',
+                'value'=>function($data) {
+                    return Html::img($data->getImage()->getUrl(Content::IMAGE_THUMB), [
+                            'style' => 'max-width: 70px; max-height: 70px;'
+                    ]);
+                },
+            ],
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

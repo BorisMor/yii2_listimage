@@ -65,6 +65,8 @@ class ContentSearch extends Content
         $query->andFilterWhere(['like', 'title', $this->title])
             ->andFilterWhere(['like', 'description', $this->description]);
 
+        $query->orderBy('id desc');
+
         return $dataProvider;
     }
 }

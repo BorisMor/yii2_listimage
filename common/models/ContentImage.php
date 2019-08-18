@@ -15,9 +15,10 @@ use Imagine\Image\BoxInterface;
 class ContentImage extends BaseContentImage {
 
     /**
-     * Формат изоражения
-     * [ 'prefix' => ['w' => 100, 'h' => 100] ]
-     * w-ширина, h - высота
+     * Формат изображения. Задает владелец записью
+     *
+     * [ 'prefix' => ['w' => 100, 'h' => 100, 'thumb' => false ] ]
+     * w-ширина, h - высота, thumb - обрезать четко по размеру
      *
      * @var array
      */
@@ -125,10 +126,16 @@ class ContentImage extends BaseContentImage {
             $newFileName = $this->getFilePath($prefix);
             $width = $option['w'] ?? 0;
             $height = $option['h'] ?? 0;
+            $thumb = $option['thumb'] ?? false;
 
-            Image::getImagine()->open($originalFile)
-                ->thumbnail(new Box($width, $height))
-                ->save($newFileName , ['quality' => 90]);
+            if ($thumb) {
+                Image::thumbnail($originalFile, $width, $height)
+                    ->save($newFileName, ['quality' => 80]);
+            } else {
+                Image::getImagine()->open($originalFile)
+                    ->thumbnail(new Box($width, $height))
+                    ->save($newFileName , ['quality' => 80]);
+            }
         }
     }
 

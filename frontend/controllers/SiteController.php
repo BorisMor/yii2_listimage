@@ -1,6 +1,7 @@
 <?php
 namespace frontend\controllers;
 
+use common\models\Content;
 use frontend\models\ResendVerificationEmailForm;
 use frontend\models\VerifyEmailForm;
 use Yii;
@@ -14,6 +15,8 @@ use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
+use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 
 /**
  * Site controller
@@ -74,7 +77,24 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        return $this->render('content_index', [
+            'models' => Content::find()->last()
+        ]);
+    }
+
+    public function actionView($id)
+    {
+        /** @var Content $model */
+        $model = Content::find()->where(['id' => $id])->one();
+
+        if (!$model) {
+            throw new NotFoundHttpException();
+        }
+
+        $model->incrementView();
+        return $this->render('content_view', [
+           'model' => $model
+        ]);
     }
 
     /**

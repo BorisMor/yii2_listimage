@@ -27,7 +27,7 @@ class Content extends BaseContent
             [
                 'class' => ContentImageBehavior::className(),
                 'formatImage' => [
-                    static::IMAGE_THUMB => ['w' => 200, 'h' => 200],
+                    static::IMAGE_THUMB => ['w' => 400, 'h' => 350, 'thumb' => true ],
                     static::IMAGE_VIEW => ['w' => 1200, 'h' => 1000],
                 ],
                 'getContentImage' => function () {
@@ -41,6 +41,9 @@ class Content extends BaseContent
     {
         return array_merge(parent::rules(), [
             [['uploadImageFile'], 'file', 'skipOnEmpty' => true, 'extensions' => 'png, jpg'],
+            ['uploadImageFile', 'required', 'when' => function($model) {
+                return empty($model->content_image_id);
+            }, 'enableClientValidation' => false ]
         ]);
     }
 
@@ -48,6 +51,7 @@ class Content extends BaseContent
     {
         $result = parent::load($data, $formName);
         $this->uploadImageFile = UploadedFile::getInstance($this, 'uploadImageFile');
+
         return $result;
     }
 
@@ -59,5 +63,11 @@ class Content extends BaseContent
         }
 
         return parent::save($runValidation, $attributeNames);
+    }
+
+    public function incrementView()
+    {
+        $this->view++;
+        $this->updateAttributes(['view']);
     }
 }

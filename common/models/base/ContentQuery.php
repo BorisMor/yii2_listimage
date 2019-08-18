@@ -31,4 +31,9 @@ class ContentQuery extends \yii\db\ActiveQuery
     {
         return parent::one($db);
     }
+
+    public function last($limit = 6)
+    {
+        return $this->limit($limit)->orderBy('id desc')->all(null);
+    }
 }
